@@ -1,0 +1,9 @@
+@tailwind base; @tailwind components; @tailwind utilities;
+:root { --paper:#EEF3F1; --card:#FFFFFF; --ink:#12242A; --mute:#5E7077; --line:#D5DFDC; --taka:#0E7A5F; --owe:#B4452F; --warn:#B7791F; color-scheme: light; }
+.dark { --paper:#0C1518; --card:#142026; --ink:#E6EEEC; --mute:#8FA3A9; --line:#243339; --taka:#3FC79E; --owe:#F08A73; --warn:#E3B04B; color-scheme: dark; }
+body { background:var(--paper); color:var(--ink); font-family:'Hind Siliguri',system-ui,sans-serif; padding-bottom:env(safe-area-inset-bottom); }
+.btn { @apply rounded-xl px-4 py-2.5 text-sm font-semibold border border-line bg-card active:scale-[.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-taka; }
+.btn-primary { background:var(--taka); color:var(--paper); border-color:var(--taka); }
+.field { @apply w-full rounded-xl border border-line bg-card px-3 py-2.5 text-base; }
+.num { font-family:'Tiro Bangla',Georgia,serif; font-variant-numeric:tabular-nums; }
+@media (prefers-reduced-motion: reduce) { * { transition:none !important; animation:none !important; } }
