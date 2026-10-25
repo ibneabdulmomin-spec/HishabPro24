@@ -1,0 +1,53 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function owner(uid) { return signedIn() && request.auth.uid == uid; }
+    function base(uid) { return request.resource.data.uid == uid; }
+    function ref(uid, col, id) { return exists(/databases/$(database)/documents/users/$(uid)/$(col)/$(id)); }
+    function refOk(uid, col, field) {
+      return !(field in request.resource.data) || request.resource.data[field] == null || ref(uid, col, request.resource.data[field]);
+    }
+    function validTx(uid, id) {
+      let d = request.resource.data;
+      return d.uid == uid && d.id == id
+        && d.amount is int && d.amount > 0 && d.amount <= 1000000000000000
+        && d.type in ['income','expense','lend','borrow','repay_given','repay_received','transfer','invest','capital_return','invest_profit','invest_loss','refund_received','refund_given','adjustment']
+        && d.date is string && d.date.size() == 10
+        && d.description is string && d.description.size() <= 500
+        && d.status in ['active','reversed']
+        && d.history is list && d.history.size() >= 1
+        && refOk(uid, 'accounts', 'accountId') && refOk(uid, 'accounts', 'toAccountId')
+        && refOk(uid, 'contacts', 'contactId') && refOk(uid, 'businesses', 'businessId');
+    }
+    match /users/{uid} {
+      allow read: if owner(uid);
+      allow create, update: if owner(uid) && base(uid) && request.resource.data.keys().hasOnly(['uid','lang','theme']);
+      allow delete: if false;
+      match /transactions/{id} {
+        allow read: if owner(uid);
+        allow create: if owner(uid) && validTx(uid, id) && request.resource.data.status == 'active' && request.resource.data.history.size() == 1;
+        // edits/reversals must append exactly one history entry; records are never deleted
+        allow update: if owner(uid) && validTx(uid, id)
+          && request.resource.data.createdAt == resource.data.createdAt
+          && request.resource.data.receiptNo == resource.data.receiptNo
+          && request.resource.data.history.size() == resource.data.history.size() + 1;
+        allow delete: if false;
+      }
+      match /{col}/{id} {
+        // accounts, contacts, businesses, categories, budgets: owner-only, validated shape
+        allow read: if owner(uid) && col in ['accounts','contacts','businesses','categories','budgets','receipts','auditLogs'];
+        allow create, update: if owner(uid) && base(uid) && col in ['accounts','contacts','businesses','categories','budgets']
+          && (!('name' in request.resource.data) || (request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 100))
+          && (!('openingBalance' in request.resource.data) || request.resource.data.openingBalance is int);
+        allow delete: if owner(uid) && col in ['categories','budgets']; // accounts/contacts/businesses are referenced by history: archive, never delete
+        allow create: if owner(uid) && base(uid) && col in ['receipts','auditLogs'];  // append-only
+      }
+      match /meta/counters {
+        allow read: if owner(uid);
+        allow create: if owner(uid) && request.resource.data.receipt == 1;
+        allow update: if owner(uid) && request.resource.data.receipt == resource.data.receipt + 1;
+      }
+    }
+  }
+}

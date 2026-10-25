@@ -1,0 +1,24 @@
+@tailwind base; @tailwind components; @tailwind utilities;
+:root { --paper:#EEF3F1; --card:#FFFFFF; --ink:#12242A; --mute:#5E7077; --line:#D5DFDC; --taka:#0E7A5F; --owe:#B4452F; --warn:#B7791F; color-scheme: light; }
+.dark { --paper:#0C1518; --card:#142026; --ink:#E6EEEC; --mute:#8FA3A9; --line:#243339; --taka:#3FC79E; --owe:#F08A73; --warn:#E3B04B; color-scheme: dark; }
+body { background:var(--paper); color:var(--ink); font-family:var(--f,'Hind Siliguri'),system-ui,sans-serif; padding-bottom:env(safe-area-inset-bottom); }
+.btn { @apply rounded-xl px-4 py-2.5 text-sm font-semibold border border-line bg-card active:scale-[.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-taka; }
+.btn-primary { background:var(--taka); color:var(--paper); border-color:var(--taka); }
+.field { @apply w-full rounded-xl border border-line bg-card px-3 py-2.5 text-base; }
+.num { font-family:var(--f,'Hind Siliguri'),system-ui,sans-serif; font-weight:600; font-variant-numeric:tabular-nums; }
+h1,h2 { font-family:var(--f,'Hind Siliguri'),system-ui,sans-serif; }
+@media (prefers-reduced-motion: reduce) { * { transition:none !important; animation:none !important; } }
+
+.priv .num { filter: blur(7px); }
+
+.login-bg { background: linear-gradient(160deg,#064E3B 0%,#0E7A5F 55%,#2FA37F 100%); }
+.orb { position:absolute; border-radius:9999px; background:radial-gradient(circle,rgba(255,255,255,.25),rgba(255,255,255,0) 70%); animation: drift 9s ease-in-out infinite alternate; }
+.orb.o2 { animation-duration: 12s; animation-direction: alternate-reverse; }
+.logo { width:72px; height:72px; border-radius:22px; background:#fff; color:#0E7A5F; font-size:40px; font-weight:700; display:grid; place-items:center; box-shadow:0 10px 30px rgba(0,0,0,.25); animation: pop .7s cubic-bezier(.2,1.4,.4,1) both; }
+.rise { animation: rise .7s ease both; }
+.gbtn { width:100%; display:flex; align-items:center; justify-content:center; gap:10px; padding:14px; border-radius:14px; border:1px solid #D5DFDC; background:#fff; font-weight:600; transition:transform .15s; }
+.gbtn:active { transform: scale(.97); }
+@keyframes rise { from { opacity:0; transform: translateY(18px);} to { opacity:1; transform:none; } }
+@keyframes pop { from { opacity:0; transform: scale(.6) rotate(-8deg);} to { opacity:1; transform:none; } }
+@keyframes drift { from { transform: translate(0,0);} to { transform: translate(30px,40px);} }
+@media (prefers-reduced-motion: reduce) { .orb,.logo,.rise { animation: none; } }
